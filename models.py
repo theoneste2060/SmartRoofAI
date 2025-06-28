@@ -2,44 +2,88 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import json
+import sqlite3
+from database import get_db_connection
 
 class User(UserMixin):
-    def __init__(self, id, username, email, password_hash, is_admin=False):
+    def __init__(self, id, username, email, password_hash, is_admin=False, created_at=None):
         self.id = id
         self.username = username
         self.email = email
         self.password_hash = password_hash
         self.is_admin = is_admin
-        self.created_at = datetime.now()
+        self.created_at = created_at or datetime.now()
     
     @staticmethod
     def get(user_id):
-        from utils import get_users
-        users = get_users()
-        return users.get(user_id)
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+        conn.close()
+        if user:
+            return User(user['id'], user['username'], user['email'], 
+                       user['password_hash'], user['is_admin'], user['created_at'])
+        return None
     
     @staticmethod
     def get_by_email(email):
-        from utils import get_users
-        users = get_users()
-        for user in users.values():
-            if user.email == email:
-                return user
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        conn.close()
+        if user:
+            return User(user['id'], user['username'], user['email'], 
+                       user['password_hash'], user['is_admin'], user['created_at'])
         return None
+    
+    @staticmethod
+    def create(username, email, password):
+        conn = get_db_connection()
+        password_hash = generate_password_hash(password)
+        cursor = conn.execute('''
+            INSERT INTO users (username, email, password_hash) 
+            VALUES (?, ?, ?)
+        ''', (username, email, password_hash))
+        user_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return User.get(user_id)
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
 class Product:
-    def __init__(self, id, name, description, price, category, image_url, stock=100):
+    def __init__(self, id, name, description, price, category, image_url, stock=100, created_at=None):
         self.id = id
         self.name = name
         self.description = description
         self.price = price
         self.category = category
-        self.image_url = image_url
+        self.image_url = image_url or '/static/images/placeholder.svg'
         self.stock = stock
-        self.created_at = datetime.now()
+        self.created_at = created_at or datetime.now()
+    
+    @staticmethod
+    def get_all():
+        conn = get_db_connection()
+        products = conn.execute('SELECT * FROM products').fetchall()
+        conn.close()
+        return {product['id']: Product(
+            product['id'], product['name'], product['description'],
+            product['price'], product['category'], product['image_url'],
+            product['stock'], product['created_at']
+        ) for product in products}
+    
+    @staticmethod
+    def get(product_id):
+        conn = get_db_connection()
+        product = conn.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
+        conn.close()
+        if product:
+            return Product(
+                product['id'], product['name'], product['description'],
+                product['price'], product['category'], product['image_url'],
+                product['stock'], product['created_at']
+            )
+        return None
 
 class Order:
     def __init__(self, id, user_id, items, total, status='pending'):

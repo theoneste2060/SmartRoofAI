@@ -65,7 +65,7 @@
                             <p class="card-text">{{ product.description[:100] }}...</p>
                             <div class="mt-auto">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="h5 text-primary mb-0">${{ "%.2f"|format(product.price) }}</span>
+                                    <span class="h5 text-primary mb-0">RWF {{ (product.price * 1000)|int }}</span>
                                     <span class="badge bg-secondary">{{ product.category }}</span>
                                 </div>
                                 <a href="{{ url_for('product_detail', product_id=product.id) }}" 

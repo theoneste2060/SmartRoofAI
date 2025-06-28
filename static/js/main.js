@@ -79,14 +79,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Loading state for buttons
+    // Loading state for buttons with timeout
     const submitButtons = document.querySelectorAll('button[type="submit"]');
     submitButtons.forEach(button => {
         button.addEventListener('click', function() {
             const form = this.closest('form');
             if (form && form.checkValidity()) {
+                const originalText = this.innerHTML;
                 this.innerHTML = '<span class="loading"></span> Processing...';
                 this.disabled = true;
+                
+                // Reset button after 10 seconds if still processing
+                setTimeout(() => {
+                    if (this.disabled) {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+                    }
+                }, 10000);
             }
         });
     });

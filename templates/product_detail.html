@@ -14,7 +14,7 @@
             <p>{{ product.description }}</p>
             
             <div class="mb-3">
-                <span class="h3 text-primary">${{ "%.2f"|format(product.price) }}</span>
+                <span class="h3 text-primary">RWF {{ (product.price * 1000)|int }}</span>
                 <span class="text-muted ms-2">per unit</span>
             </div>
             
@@ -55,7 +55,7 @@
                             <h6 class="card-title">{{ similar.name }}</h6>
                             <div class="mt-auto">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary">${{ "%.2f"|format(similar.price) }}</span>
+                                    <span class="text-primary">RWF {{ (similar.price * 1000)|int }}</span>
                                     <a href="{{ url_for('product_detail', product_id=similar.id) }}" 
                                        class="btn btn-sm btn-outline-primary">View</a>
                                 </div>
