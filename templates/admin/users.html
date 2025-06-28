@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Users - Admin - SmartRoof{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>User Management</h2>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Segment</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.values() %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="badge bg-{% if user.is_admin %}danger{% else %}primary{% endif %}">
+                                    {% if user.is_admin %}Admin{% else %}Customer{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.id in segments %}
+                                    <span class="badge bg-info">{{ segments[user.id] }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">New Customer</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.created_at.strftime('%m/%d/%Y') }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" disabled>View</button>
+                                    <button class="btn btn-outline-secondary" disabled>Edit</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

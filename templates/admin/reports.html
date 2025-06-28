@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Admin - SmartRoof{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Analytics & Reports</h2>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+    
+    <div class="row">
+        <!-- Revenue Chart -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Revenue by Month</h5>
+                </div>
+                <div class="card-body">
+                    {% if revenue_data %}
+                    <canvas id="revenueChart" width="400" height="200"></canvas>
+                    {% else %}
+                    <p class="text-muted">No revenue data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sentiment Analysis -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Review Sentiment</h5>
+                </div>
+                <div class="card-body">
+                    {% if sentiment_data %}
+                    <canvas id="sentimentChart" width="400" height="200"></canvas>
+                    {% else %}
+                    <p class="text-muted">No review data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Top Products -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Product Performance</h5>
+                </div>
+                <div class="card-body">
+                    {% if product_sales %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Units Sold</th>
+                                    <th>Revenue</th>
+                                    <th>Avg. Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product_id, sales in product_sales.items() %}
+                                {% set product = products[product_id] %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ product.category }}</span>
+                                    </td>
+                                    <td>{{ sales.quantity }}</td>
+                                    <td>${{ "%.2f"|format(sales.revenue) }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">4.5</span>
+                                            <div class="text-warning">⭐⭐⭐⭐⭐</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No sales data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Revenue Chart
+{% if revenue_data %}
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for month in revenue_data.keys() %}'{{ month }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Revenue ($)',
+            data: [{% for amount in revenue_data.values() %}{{ amount }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: 'rgba(13, 110, 253, 0.8)',
+            borderColor: 'rgba(13, 110, 253, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value;
+                    }
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// Sentiment Chart
+{% if sentiment_data %}
+const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+new Chart(sentimentCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Positive', 'Neutral', 'Negative'],
+        datasets: [{
+            data: [{{ sentiment_data.positive }}, {{ sentiment_data.neutral }}, {{ sentiment_data.negative }}],
+            backgroundColor: ['#198754', '#6c757d', '#dc3545']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SmartRoof{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Admin Dashboard</h2>
+        <div class="btn-group">
+            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary">Users</a>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-outline-primary">Products</a>
+            <a href="{{ url_for('admin_orders') }}" class="btn btn-outline-primary">Orders</a>
+            <a href="{{ url_for('admin_reports') }}" class="btn btn-outline-primary">Reports</a>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i data-feather="users" style="width: 48px; height: 48px;" class="text-primary mb-2"></i>
+                    <h3>{{ total_users }}</h3>
+                    <p class="text-muted mb-0">Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i data-feather="package" style="width: 48px; height: 48px;" class="text-success mb-2"></i>
+                    <h3>{{ total_products }}</h3>
+                    <p class="text-muted mb-0">Products</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i data-feather="shopping-bag" style="width: 48px; height: 48px;" class="text-warning mb-2"></i>
+                    <h3>{{ total_orders }}</h3>
+                    <p class="text-muted mb-0">Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i data-feather="dollar-sign" style="width: 48px; height: 48px;" class="text-info mb-2"></i>
+                    <h3>${{ "%.0f"|format(total_revenue) }}</h3>
+                    <p class="text-muted mb-0">Revenue</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Orders</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ users[order.user_id].username if order.user_id in users else 'Unknown' }}</td>
+                                    <td>{{ order.created_at.strftime('%m/%d/%Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                            {{ order.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>${{ "%.2f"|format(order.total) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No orders yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customer Segments -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Customer Segments</h5>
+                </div>
+                <div class="card-body">
+                    {% if segments %}
+                    <canvas id="segmentChart" width="400" height="200"></canvas>
+                    {% else %}
+                    <p class="text-muted">No customer data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if segments %}
+<script>
+// Customer Segments Chart
+const segmentCounts = {};
+{% for user_id, segment in segments.items() %}
+segmentCounts['{{ segment }}'] = (segmentCounts['{{ segment }}'] || 0) + 1;
+{% endfor %}
+
+const ctx = document.getElementById('segmentChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(segmentCounts),
+        datasets: [{
+            data: Object.values(segmentCounts),
+            backgroundColor: ['#0d6efd', '#6c757d', '#198754']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

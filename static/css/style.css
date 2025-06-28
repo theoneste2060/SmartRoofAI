@@ -1,0 +1,180 @@
+/* Custom styles for SmartRoof */
+
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+    color: white;
+}
+
+.hero-section .btn {
+    border-radius: 25px;
+    padding: 12px 30px;
+}
+
+/* Chat styles */
+.chat-messages {
+    background-color: var(--bs-body-bg);
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.bot-message {
+    background-color: var(--bs-secondary-bg);
+    margin-right: 20%;
+}
+
+.user-message {
+    background-color: var(--bs-primary-bg-subtle);
+    margin-left: 20%;
+    text-align: right;
+}
+
+.message-content {
+    margin-bottom: 0.25rem;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: var(--bs-text-muted);
+}
+
+/* Product cards */
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Calculator section */
+#calculator {
+    background: var(--bs-dark);
+}
+
+#calculatorResults {
+    background-color: var(--bs-secondary-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Admin dashboard */
+.stats-card {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.stats-card i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-section .btn {
+        display: block;
+        margin: 0.5rem 0;
+        width: 100%;
+    }
+    
+    .bot-message,
+    .user-message {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--bs-primary);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Form enhancements */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Button animations */
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+footer a {
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+footer a:hover {
+    color: var(--bs-primary) !important;
+}
+
+/* Navbar brand */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Table responsive */
+.table-responsive {
+    border-radius: 0.5rem;
+}
+
+/* Custom scrollbar */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: var(--bs-secondary-bg);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-primary);
+}

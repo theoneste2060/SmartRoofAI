@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">AI-Powered Roofing Solutions</h1>
+                <p class="lead mb-4">Discover the perfect roofing materials with our intelligent recommendations and advanced roof calculator.</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg me-3">Shop Now</a>
+                <a href="#calculator" class="btn btn-outline-secondary btn-lg">Try Calculator</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i data-feather="home" style="width: 200px; height: 200px;" class="text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Roof Calculator -->
+<section id="calculator" class="py-5 bg-dark">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i data-feather="calculator" class="me-2"></i>
+                            AI Roof Calculator
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="roofCalculatorForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="roofLength" class="form-label">Roof Length (ft)</label>
+                                    <input type="number" class="form-control" id="roofLength" step="0.1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="roofWidth" class="form-label">Roof Width (ft)</label>
+                                    <input type="number" class="form-control" id="roofWidth" step="0.1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="roofType" class="form-label">Roof Type</label>
+                                    <select class="form-select" id="roofType" required>
+                                        <option value="">Select roof type</option>
+                                        <option value="flat">Flat</option>
+                                        <option value="gable">Gable</option>
+                                        <option value="hip">Hip</option>
+                                        <option value="mansard">Mansard</option>
+                                        <option value="gambrel">Gambrel</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="materialType" class="form-label">Material Type</label>
+                                    <select class="form-select" id="materialType" required>
+                                        <option value="">Select material</option>
+                                        <option value="Metal Sheets">Metal Sheets</option>
+                                        <option value="Shingles">Shingles</option>
+                                        <option value="Tiles">Tiles</option>
+                                        <option value="Membrane">Membrane</option>
+                                        <option value="Polycarbonate">Polycarbonate</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i data-feather="zap" class="me-2"></i>Calculate Materials
+                            </button>
+                        </form>
+                        
+                        <div id="calculatorResults" class="mt-4" style="display: none;">
+                            <h5>Calculation Results</h5>
+                            <div id="resultsContent"></div>
+                            
+                            <div id="recommendedProducts" class="mt-4">
+                                <h6>Recommended Products</h6>
+                                <div id="productsContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Products</h2>
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description[:100] }}...</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 text-primary">${{ "%.2f"|format(product.price) }}</span>
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('products') }}" class="btn btn-primary">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose SmartRoof?</h2>
+        <div class="row">
+            <div class="col-md-3 text-center mb-4">
+                <i data-feather="cpu" style="width: 48px; height: 48px;" class="text-primary mb-3"></i>
+                <h5>AI Recommendations</h5>
+                <p>Get personalized product suggestions based on your needs and preferences.</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <i data-feather="calculator" style="width: 48px; height: 48px;" class="text-primary mb-3"></i>
+                <h5>Smart Calculator</h5>
+                <p>Calculate exact material requirements with our intelligent roof calculator.</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <i data-feather="message-circle" style="width: 48px; height: 48px;" class="text-primary mb-3"></i>
+                <h5>AI Chat Support</h5>
+                <p>Get instant answers to your questions with our AI-powered chat assistant.</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <i data-feather="shield" style="width: 48px; height: 48px;" class="text-primary mb-3"></i>
+                <h5>Quality Guarantee</h5>
+                <p>All products come with manufacturer warranty and quality assurance.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/roof_calculator.js') }}"></script>
+{% endblock %}
