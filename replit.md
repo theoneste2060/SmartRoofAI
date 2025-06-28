@@ -102,7 +102,16 @@ The application is configured for development deployment with the following char
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- **June 28, 2025**: Fixed all form processing issues
+  - Updated roof calculator JavaScript to prevent buttons getting stuck in processing state
+  - Added proper loading states and immediate button restoration for login/register forms  
+  - Fixed SQLite database integration and removed PostgreSQL dependencies
+  - All forms now submit properly without eternal processing states
+  - Currency display updated to RWF throughout the application
+
 ## Changelog
 
-Changelog:
-- June 28, 2025. Initial setup
+- June 28, 2025: Initial setup with complete e-commerce platform
+- June 28, 2025: Fixed processing issues in all forms (calculator, login, register)

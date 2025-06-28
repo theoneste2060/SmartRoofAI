@@ -57,14 +57,12 @@ async function calculateRoof() {
         console.error('Error:', error);
         alert('Error calculating roof materials. Please try again.');
     } finally {
-        // Restore button state
-        setTimeout(() => {
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
-        }, 1000);
+        // Restore button state immediately
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
     }
 }
 

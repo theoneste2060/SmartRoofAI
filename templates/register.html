@@ -11,7 +11,7 @@
                     <h3 class="text-center mb-0">Register for SmartRoof</h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" id="registerForm">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
@@ -24,7 +24,7 @@
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        <button type="submit" class="btn btn-primary w-100" id="registerButton">Register</button>
                     </form>
                     
                     <hr>
@@ -36,4 +36,30 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.getElementById('registerForm');
+    const registerButton = document.getElementById('registerButton');
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            // Show loading state
+            const originalText = registerButton.innerHTML;
+            registerButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
+            registerButton.disabled = true;
+            
+            // Allow form to submit normally, but ensure button doesn't stay disabled if there's an error
+            setTimeout(() => {
+                if (registerButton.disabled) {
+                    registerButton.innerHTML = originalText;
+                    registerButton.disabled = false;
+                }
+            }, 5000);
+        });
+    }
+});
+</script>
 {% endblock %}
