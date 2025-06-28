@@ -2,8 +2,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import json
-import sqlite3
-from database import get_db_connection
+from db_models import get_db_connection
 
 class User(UserMixin):
     def __init__(self, id, username, email, password_hash, is_admin=False, created_at=None):
