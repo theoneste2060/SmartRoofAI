@@ -27,3 +27,7 @@ import database
 
 # Import routes after app initialization
 from routes import *
+
+# Import AI routes
+from ai_routes import register_ai_routes
+register_ai_routes(app)

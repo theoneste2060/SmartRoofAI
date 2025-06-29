@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}AI Roof Calculator - SmartRoof{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i data-feather="zap"></i> AI Roof Calculator</h1>
+                <div class="badge bg-primary">Powered by OpenAI</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Calculator Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i data-feather="calculator"></i> Smart Calculation</h5>
+                </div>
+                <div class="card-body">
+                    <form id="ai-calculator-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="length" class="form-label">Length (feet)</label>
+                                    <input type="number" class="form-control" id="length" name="length" 
+                                           min="1" max="500" step="0.1" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="width" class="form-label">Width (feet)</label>
+                                    <input type="number" class="form-control" id="width" name="width" 
+                                           min="1" max="500" step="0.1" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="roof_type" class="form-label">Roof Type</label>
+                                    <select class="form-select" id="roof_type" name="roof_type" required>
+                                        <option value="gable">Gable</option>
+                                        <option value="hip">Hip</option>
+                                        <option value="shed">Shed</option>
+                                        <option value="gambrel">Gambrel</option>
+                                        <option value="mansard">Mansard</option>
+                                        <option value="flat">Flat</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="material_type" class="form-label">Material Type</label>
+                                    <select class="form-select" id="material_type" name="material_type" required>
+                                        <option value="shingles">Asphalt Shingles</option>
+                                        <option value="metal_sheets">Metal Sheets</option>
+                                        <option value="tiles">Clay/Concrete Tiles</option>
+                                        <option value="slate">Slate</option>
+                                        <option value="wood_shakes">Wood Shakes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="slope" class="form-label">Roof Slope (pitch)</label>
+                                    <select class="form-select" id="slope" name="slope">
+                                        <option value="3">3/12 (Low)</option>
+                                        <option value="4" selected>4/12 (Normal)</option>
+                                        <option value="6">6/12 (Medium)</option>
+                                        <option value="8">8/12 (Steep)</option>
+                                        <option value="12">12/12 (Very Steep)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="complexity" class="form-label">Roof Complexity</label>
+                                    <select class="form-select" id="complexity" name="complexity">
+                                        <option value="simple" selected>Simple</option>
+                                        <option value="moderate">Moderate</option>
+                                        <option value="complex">Complex</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="method" class="form-label">Calculation Method</label>
+                                    <select class="form-select" id="method" name="method">
+                                        <option value="hybrid" selected>Hybrid AI+ML</option>
+                                        <option value="ai">AI Only</option>
+                                        <option value="ml">ML Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location (optional)</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="City, State or Region">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i data-feather="zap"></i> Calculate with AI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i data-feather="pie-chart"></i> AI Results</h5>
+                </div>
+                <div class="card-body">
+                    <div id="ai-results" class="text-center text-muted">
+                        <i data-feather="cpu" size="48"></i>
+                        <p class="mt-2">Enter your roof dimensions above and click "Calculate with AI" to get intelligent recommendations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation History -->
+            {% if history %}
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i data-feather="clock"></i> Recent Calculations</h6>
+                </div>
+                <div class="card-body">
+                    {% for calc in history %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <div>
+                            <small class="text-muted">{{ calc.created_at.strftime('%m/%d %H:%M') }}</small><br>
+                            <strong>{{ calc.length }}' × {{ calc.width }}'</strong><br>
+                            <span class="badge bg-secondary">{{ calc.material_type }}</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-success">RWF {{ (calc.cost_estimate.get('total_cost', 0) * 1000)|int }}</small><br>
+                            <span class="badge bg-primary">{{ calc.calculation_source }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Calculation Feedback</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="feedback-form">
+                        <input type="hidden" id="feedback-calc-id" name="calculation_id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">How accurate was this calculation?</label>
+                            <div class="rating-stars">
+                                <input type="radio" name="rating" value="5" id="star5">
+                                <label for="star5">★</label>
+                                <input type="radio" name="rating" value="4" id="star4">
+                                <label for="star4">★</label>
+                                <input type="radio" name="rating" value="3" id="star3">
+                                <label for="star3">★</label>
+                                <input type="radio" name="rating" value="2" id="star2">
+                                <label for="star2">★</label>
+                                <input type="radio" name="rating" value="1" id="star1">
+                                <label for="star1">★</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="feedback-comments" class="form-label">Comments (optional)</label>
+                            <textarea class="form-control" id="feedback-comments" name="comments" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="actual-cost" class="form-label">Actual Cost (if known)</label>
+                            <input type="number" class="form-control" id="actual-cost" name="actual_cost" 
+                                   placeholder="Enter actual cost in USD">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submit-feedback">Submit Feedback</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-stars input[type="radio"] {
+    display: none;
+}
+
+.rating-stars label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.rating-stars input[type="radio"]:checked ~ label,
+.rating-stars label:hover,
+.rating-stars label:hover ~ label {
+    color: #ffc107;
+}
+
+.loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ai_calculator.js') }}"></script>
+{% endblock %}

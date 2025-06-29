@@ -2,7 +2,7 @@ modules = ["web", "python-3.11", "nodejs-20"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["glibcLocales", "openssl", "postgresql", "sqlite"]
+packages = ["bash", "cargo", "glibcLocales", "libiconv", "openssl", "postgresql", "rustc", "sqlite"]
 
 [deployment]
 deploymentTarget = "autoscale"
