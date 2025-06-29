@@ -31,7 +31,7 @@
                         <div class="col-md-3 text-end">
                             <h5 class="text-primary">RWF {{ (item.subtotal * 1000)|int }}</h5>
                             <form method="POST" action="{{ url_for('remove_from_cart', item_id=item.id) }}" style="display: inline;" class="no-global-loader">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger no-global-loader">Remove</button>
                             </form>
                         </div>
                     </div>
