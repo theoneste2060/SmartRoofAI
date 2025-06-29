@@ -29,21 +29,14 @@
                         {% for order in orders %}
                         <tr>
                             <td>#{{ order.id }}</td>
-                            <td>{{ users[order.user_id].username if order.user_id in users else 'Unknown' }}</td>
+                            <td>{{ order.username }}</td>
                             <td>{{ order.created_at }}</td>
                             <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        {{ order.items|length }} items
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        {% for item in order.items %}
-                                        <li><span class="dropdown-item-text">{{ item.product_name }} ({{ item.quantity }})</span></li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
+                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="Order items">
+                                    Items
+                                </button>
                             </td>
-                            <td>${{ "%.2f"|format(order.total) }}</td>
+                            <td>RWF {{ "{:,.0f}"|format(order.total) }}</td>
                             <td>
                                 <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'shipped' %}info{% else %}secondary{% endif %}">
                                     {{ order.status.title() }}

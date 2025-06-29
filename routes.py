@@ -328,14 +328,37 @@ def admin_dashboard():
     total_products = conn.execute('SELECT COUNT(*) FROM products').fetchone()[0]
     total_orders = conn.execute('SELECT COUNT(*) FROM orders').fetchone()[0]
     total_revenue = conn.execute('SELECT COALESCE(SUM(total), 0) FROM orders').fetchone()[0]
+    
+    # Get recent orders for dashboard
+    recent_orders_data = conn.execute('''
+        SELECT o.*, u.username 
+        FROM orders o
+        LEFT JOIN users u ON o.user_id = u.id
+        ORDER BY o.created_at DESC
+        LIMIT 5
+    ''').fetchall()
+    
     conn.close()
+    
+    # Convert revenue to RWF (multiply by 1000)
+    total_revenue_rwf = total_revenue * 1000
+    
+    recent_orders = []
+    for order in recent_orders_data:
+        recent_orders.append({
+            'id': order['id'],
+            'username': order['username'] or 'Unknown User',
+            'total': order['total'] * 1000,  # Convert to RWF
+            'status': order['status'],
+            'created_at': order['created_at']
+        })
     
     return render_template('admin/dashboard.html',
                          total_users=total_users,
                          total_products=total_products,
                          total_orders=total_orders,
-                         total_revenue=total_revenue,
-                         recent_orders=[],
+                         total_revenue=total_revenue_rwf,
+                         recent_orders=recent_orders,
                          segments={},
                          users={})
 
@@ -471,7 +494,50 @@ def admin_orders():
         flash('Access denied', 'error')
         return redirect(url_for('index'))
     
-    return render_template('admin/orders.html', orders=[], users={})
+    try:
+        conn = get_db_connection()
+        
+        # Get all orders with user information
+        orders = conn.execute('''
+            SELECT o.*, u.username, u.email 
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            ORDER BY o.created_at DESC
+        ''').fetchall()
+        
+        # Get all users for reference
+        users = conn.execute('SELECT id, username, email FROM users').fetchall()
+        conn.close()
+        
+        # Convert to dictionaries for easier template usage
+        orders_dict = {}
+        users_dict = {}
+        
+        for order in orders:
+            orders_dict[order['id']] = {
+                'id': order['id'],
+                'user_id': order['user_id'],
+                'username': order['username'] or 'Unknown User',
+                'email': order['email'] or 'N/A',
+                'items': order['items'],
+                'total': order['total'] * 1000,  # Convert to RWF
+                'status': order['status'],
+                'shipping_address': order.get('shipping_address', ''),
+                'payment_method': order.get('payment_method', 'Unknown'),
+                'created_at': order['created_at']
+            }
+        
+        for user in users:
+            users_dict[user['id']] = {
+                'username': user['username'],
+                'email': user['email']
+            }
+        
+        return render_template('admin/orders.html', orders=orders_dict, users=users_dict)
+        
+    except Exception as e:
+        print(f"Error fetching orders: {e}")
+        return render_template('admin/orders.html', orders={}, users={})
 
 @app.route('/admin/reports')
 @login_required
