@@ -633,10 +633,12 @@ def checkout():
         return redirect(url_for('cart'))
 
 @app.route('/api/cart/count')
-@login_required
 def cart_count():
     """API endpoint to get cart count"""
     try:
+        if not current_user.is_authenticated:
+            return jsonify({'count': 0})
+            
         conn = get_db_connection()
         result = conn.execute('''
             SELECT SUM(quantity) as total_items 
@@ -646,9 +648,9 @@ def cart_count():
         conn.close()
         
         total_items = result['total_items'] if result['total_items'] else 0
-        return {'count': total_items}
+        return jsonify({'count': total_items})
     except Exception as e:
-        return {'count': 0}
+        return jsonify({'count': 0})
 
 @app.route('/place_order', methods=['POST'])
 @login_required
