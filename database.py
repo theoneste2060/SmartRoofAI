@@ -99,14 +99,14 @@ def init_database():
     cursor.execute('SELECT COUNT(*) FROM products')
     if cursor.fetchone()[0] == 0:
         products = [
-            ('Corrugated Metal Sheets', 'Durable galvanized steel roofing sheets perfect for residential and commercial use', 25.99, 'Metal Sheets', '/static/images/placeholder.svg'),
-            ('Asphalt Shingles', 'High-quality asphalt shingles with 25-year warranty', 45.50, 'Shingles', '/static/images/placeholder.svg'),
-            ('Clay Roof Tiles', 'Traditional clay tiles for Mediterranean-style roofing', 65.00, 'Tiles', '/static/images/placeholder.svg'),
-            ('Rubber Roofing Membrane', 'EPDM rubber membrane for flat roofs', 35.75, 'Membrane', '/static/images/placeholder.svg'),
-            ('Polycarbonate Sheets', 'Transparent polycarbonate sheets for skylights', 42.25, 'Polycarbonate', '/static/images/placeholder.svg'),
-            ('Aluminum Roofing Coil', 'Lightweight aluminum coils for custom roofing', 38.99, 'Metal Sheets', '/static/images/placeholder.svg'),
-            ('Fiberglass Shingles', 'Fire-resistant fiberglass shingles with enhanced durability', 52.30, 'Shingles', '/static/images/placeholder.svg'),
-            ('Concrete Roof Tiles', 'Heavy-duty concrete tiles for long-lasting roofing', 58.75, 'Tiles', '/static/images/placeholder.svg'),
+            ('Corrugated Metal Sheets', 'Durable galvanized steel roofing sheets perfect for residential and commercial use', 25.99, 'Metal Sheets', '/static/images/metal-sheets.svg'),
+            ('Asphalt Shingles', 'High-quality asphalt shingles with 25-year warranty', 45.50, 'Shingles', '/static/images/shingles.svg'),
+            ('Clay Roof Tiles', 'Traditional clay tiles for Mediterranean-style roofing', 65.00, 'Tiles', '/static/images/tiles.svg'),
+            ('Rubber Roofing Membrane', 'EPDM rubber membrane for flat roofs', 35.75, 'Membrane', '/static/images/membrane.svg'),
+            ('Polycarbonate Sheets', 'Transparent polycarbonate sheets for skylights', 42.25, 'Polycarbonate', '/static/images/polycarbonate.svg'),
+            ('Aluminum Roofing Coil', 'Lightweight aluminum coils for custom roofing', 38.99, 'Metal Sheets', '/static/images/metal-sheets.svg'),
+            ('Fiberglass Shingles', 'Fire-resistant fiberglass shingles with enhanced durability', 52.30, 'Shingles', '/static/images/shingles.svg'),
+            ('Concrete Roof Tiles', 'Heavy-duty concrete tiles for long-lasting roofing', 58.75, 'Tiles', '/static/images/tiles.svg'),
         ]
         
         cursor.executemany('''
