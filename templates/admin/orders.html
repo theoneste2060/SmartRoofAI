@@ -11,7 +11,8 @@
     
     <div class="card">
         <div class="card-body">
-            {% if orders %}
+            <!-- Debug: orders length = {{ orders|length }} -->
+            {% if orders and orders|length > 0 %}
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>

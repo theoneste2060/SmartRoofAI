@@ -513,8 +513,10 @@ def admin_orders():
         orders_list = []
         users_dict = {}
         
+        print(f"DEBUG: Found {len(orders)} orders in database")
+        
         for order in orders:
-            orders_list.append({
+            order_dict = {
                 'id': order['id'],
                 'user_id': order['user_id'],
                 'username': order['username'] or 'Unknown User',
@@ -525,7 +527,9 @@ def admin_orders():
                 'shipping_address': '',  # Column doesn't exist in current schema
                 'payment_method': 'Unknown',  # Column doesn't exist in current schema
                 'created_at': order['created_at']
-            })
+            }
+            orders_list.append(order_dict)
+            print(f"DEBUG: Added order {order_dict}")
         
         for user in users:
             users_dict[user['id']] = {
@@ -533,11 +537,31 @@ def admin_orders():
                 'email': user['email']
             }
         
+        print(f"DEBUG: Passing {len(orders_list)} orders to template")
         return render_template('admin/orders.html', orders=orders_list, users=users_dict)
         
     except Exception as e:
         print(f"Error fetching orders: {e}")
-        return render_template('admin/orders.html', orders={}, users={})
+        return render_template('admin/orders.html', orders=[], users={})
+
+@app.route('/admin/orders/update/<int:order_id>', methods=['POST'])
+@login_required
+def update_order_status(order_id):
+    if not current_user.is_admin:
+        flash('Access denied', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        new_status = request.form.get('status')
+        conn = get_db_connection()
+        conn.execute('UPDATE orders SET status = ? WHERE id = ?', (new_status, order_id))
+        conn.commit()
+        conn.close()
+        flash(f'Order #{order_id} status updated to {new_status}', 'success')
+    except Exception as e:
+        flash('Error updating order status', 'error')
+    
+    return redirect(url_for('admin_orders'))
 
 @app.route('/admin/reports')
 @login_required
