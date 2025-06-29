@@ -60,20 +60,35 @@ def product_detail(product_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    print("DEBUG: Login route accessed")
     if request.method == 'POST':
+        print("DEBUG: Login POST request received")
         email = request.form['email']
         password = request.form['password']
         
+        print(f"DEBUG: Login attempt for email: {email}")
+        
         user = User.get_by_email(email)
+        print(f"DEBUG: User found: {user is not None}")
         
         if user and user.check_password(password):
+            print("DEBUG: Password check successful, logging in user")
             login_user(user)
             flash('Logged in successfully!', 'success')
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('index'))
+            
+            # Check if user is admin and redirect accordingly
+            if user.is_admin:
+                print("DEBUG: User is admin, redirecting to admin dashboard")
+                return redirect(url_for('admin_dashboard'))
+            else:
+                print("DEBUG: User is regular user, redirecting to home page")
+                next_page = request.args.get('next')
+                return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
+            print("DEBUG: Login failed - invalid credentials")
             flash('Invalid email or password', 'error')
     
+    print("DEBUG: Rendering login template")
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -109,7 +124,129 @@ def logout():
 @app.route('/cart')
 @login_required
 def cart():
-    return render_template('cart.html', cart_items=[], total=0)
+    try:
+        conn = get_db_connection()
+        cart_items_data = conn.execute('''
+            SELECT ci.*, p.name, p.price, p.image_url 
+            FROM cart_items ci 
+            JOIN products p ON ci.product_id = p.id 
+            WHERE ci.user_id = ?
+        ''', (current_user.id,)).fetchall()
+        conn.close()
+        
+        cart_items = []
+        total = 0
+        
+        for item in cart_items_data:
+            product = Product.get(item['product_id'])
+            if product:
+                cart_items.append({
+                    'id': item['id'],
+                    'product': product,
+                    'quantity': item['quantity'],
+                    'subtotal': product.price * item['quantity']
+                })
+                total += product.price * item['quantity']
+        
+        return render_template('cart.html', cart_items=cart_items, total=total)
+    except Exception as e:
+        return render_template('cart.html', cart_items=[], total=0)
+
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+@login_required
+def add_to_cart(product_id):
+    product = Product.get(product_id)
+    if not product:
+        flash('Product not found', 'error')
+        return redirect(url_for('products'))
+    
+    quantity = int(request.form.get('quantity', 1))
+    
+    try:
+        conn = get_db_connection()
+        # Check if item already in cart
+        existing_item = conn.execute(
+            'SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?',
+            (current_user.id, product_id)
+        ).fetchone()
+        
+        if existing_item:
+            # Update quantity
+            conn.execute(
+                'UPDATE cart_items SET quantity = quantity + ? WHERE user_id = ? AND product_id = ?',
+                (quantity, current_user.id, product_id)
+            )
+        else:
+            # Add new item
+            conn.execute(
+                'INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)',
+                (current_user.id, product_id, quantity)
+            )
+        
+        conn.commit()
+        conn.close()
+        
+        flash(f'{product.name} added to cart!', 'success')
+    except Exception as e:
+        flash('Error adding item to cart. Please try again.', 'error')
+    
+    return redirect(url_for('product_detail', product_id=product_id))
+
+@app.route('/remove_from_cart/<int:item_id>', methods=['POST'])
+@login_required
+def remove_from_cart(item_id):
+    try:
+        conn = get_db_connection()
+        # Verify the item belongs to the current user
+        item = conn.execute(
+            'SELECT * FROM cart_items WHERE id = ? AND user_id = ?',
+            (item_id, current_user.id)
+        ).fetchone()
+        
+        if item:
+            conn.execute('DELETE FROM cart_items WHERE id = ?', (item_id,))
+            conn.commit()
+            flash('Item removed from cart!', 'success')
+        else:
+            flash('Item not found in cart!', 'error')
+        
+        conn.close()
+    except Exception as e:
+        flash('Error removing item from cart. Please try again.', 'error')
+    
+    return redirect(url_for('cart'))
+
+@app.route('/update_cart_quantity/<int:item_id>', methods=['POST'])
+@login_required
+def update_cart_quantity(item_id):
+    quantity = int(request.form.get('quantity', 1))
+    
+    if quantity <= 0:
+        return redirect(url_for('remove_from_cart', item_id=item_id))
+    
+    try:
+        conn = get_db_connection()
+        # Verify the item belongs to the current user
+        item = conn.execute(
+            'SELECT * FROM cart_items WHERE id = ? AND user_id = ?',
+            (item_id, current_user.id)
+        ).fetchone()
+        
+        if item:
+            conn.execute(
+                'UPDATE cart_items SET quantity = ? WHERE id = ?',
+                (quantity, item_id)
+            )
+            conn.commit()
+            flash('Cart updated!', 'success')
+        else:
+            flash('Item not found in cart!', 'error')
+        
+        conn.close()
+    except Exception as e:
+        flash('Error updating cart. Please try again.', 'error')
+    
+    return redirect(url_for('cart'))
 
 @app.route('/profile')
 @login_required
@@ -119,14 +256,24 @@ def profile():
 @app.route('/calculate_roof', methods=['POST'])
 def calculate_roof():
     try:
+        print("DEBUG: calculate_roof endpoint called")
         data = request.get_json()
+        print(f"DEBUG: Received data: {data}")
         
         length = float(data['length'])
         width = float(data['width'])
         roof_type = data['roof_type']
         material_type = data['material_type']
         
+        print(f"DEBUG: Processing - Length: {length}, Width: {width}, Roof Type: {roof_type}, Material: {material_type}")
+        
+        # Check if roof_calculator is available
+        if 'roof_calculator' not in globals():
+            print("ERROR: roof_calculator not found in globals")
+            return jsonify({'error': 'Roof calculator not available'}), 500
+        
         calculation = roof_calculator.calculate_materials(length, width, roof_type, material_type)
+        print(f"DEBUG: Calculation result: {calculation}")
         
         # Get recommended products
         products = Product.get_all()
@@ -140,11 +287,17 @@ def calculate_roof():
                     'category': product.category
                 })
         
-        return jsonify({
+        result = {
             'calculation': calculation,
             'recommended_products': recommended_products[:3]
-        })
+        }
+        print(f"DEBUG: Returning result: {result}")
+        return jsonify(result)
+        
     except Exception as e:
+        print(f"ERROR in calculate_roof: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 400
 
 @app.route('/chat', methods=['GET', 'POST'])
@@ -216,6 +369,101 @@ def admin_products():
     products = Product.get_all()
     return render_template('admin/products.html', products=products)
 
+@app.route('/admin/products/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_product():
+    if not current_user.is_admin:
+        flash('Access denied', 'error')
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        price = float(request.form['price'])
+        category = request.form['category']
+        stock = int(request.form['stock'])
+        image_url = request.form['image_url'] or '/static/images/placeholder.svg'
+        
+        try:
+            conn = get_db_connection()
+            cursor = conn.execute('''
+                INSERT INTO products (name, description, price, category, image_url, stock)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (name, description, price, category, image_url, stock))
+            product_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
+            flash('Product added successfully!', 'success')
+            return redirect(url_for('admin_products'))
+        except Exception as e:
+            flash('Error adding product. Please try again.', 'error')
+            return render_template('admin/product_form.html', product=None, action='Add')
+    
+    return render_template('admin/product_form.html', product=None, action='Add')
+
+@app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_product(product_id):
+    if not current_user.is_admin:
+        flash('Access denied', 'error')
+        return redirect(url_for('index'))
+    
+    product = Product.get(product_id)
+    if not product:
+        flash('Product not found', 'error')
+        return redirect(url_for('admin_products'))
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        price = float(request.form['price'])
+        category = request.form['category']
+        stock = int(request.form['stock'])
+        image_url = request.form['image_url'] or '/static/images/placeholder.svg'
+        
+        try:
+            conn = get_db_connection()
+            conn.execute('''
+                UPDATE products 
+                SET name = ?, description = ?, price = ?, category = ?, image_url = ?, stock = ?
+                WHERE id = ?
+            ''', (name, description, price, category, image_url, stock, product_id))
+            conn.commit()
+            conn.close()
+            
+            flash('Product updated successfully!', 'success')
+            return redirect(url_for('admin_products'))
+        except Exception as e:
+            flash('Error updating product. Please try again.', 'error')
+            return render_template('admin/product_form.html', product=product, action='Edit')
+    
+    return render_template('admin/product_form.html', product=product, action='Edit')
+
+@app.route('/admin/products/delete/<int:product_id>', methods=['POST'])
+@login_required
+def admin_delete_product(product_id):
+    if not current_user.is_admin:
+        flash('Access denied', 'error')
+        return redirect(url_for('index'))
+    
+    product = Product.get(product_id)
+    if not product:
+        flash('Product not found', 'error')
+        return redirect(url_for('admin_products'))
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('DELETE FROM products WHERE id = ?', (product_id,))
+        conn.commit()
+        conn.close()
+        
+        flash('Product deleted successfully!', 'success')
+    except Exception as e:
+        flash('Error deleting product. Please try again.', 'error')
+    
+    return redirect(url_for('admin_products'))
+
 @app.route('/admin/orders')
 @login_required
 def admin_orders():
@@ -237,3 +485,87 @@ def admin_reports():
                          product_sales={},
                          sentiment_data={},
                          products={})
+
+@app.route('/add_review/<int:product_id>', methods=['POST'])
+@login_required
+def add_review(product_id):
+    product = Product.get(product_id)
+    if not product:
+        flash('Product not found', 'error')
+        return redirect(url_for('products'))
+    
+    rating = int(request.form['rating'])
+    comment = request.form['comment']
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO reviews (user_id, product_id, rating, comment, created_at)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        ''', (current_user.id, product_id, rating, comment))
+        conn.commit()
+        conn.close()
+        
+        flash('Review added successfully!', 'success')
+    except Exception as e:
+        flash('Error adding review. Please try again.', 'error')
+    
+    return redirect(url_for('product_detail', product_id=product_id))
+
+@app.route('/debug/cart')
+@login_required
+def debug_cart():
+    """Debug route to check cart contents"""
+    try:
+        conn = get_db_connection()
+        cart_items = conn.execute('SELECT * FROM cart_items WHERE user_id = ?', (current_user.id,)).fetchall()
+        conn.close()
+        
+        return jsonify({
+            'user_id': current_user.id,
+            'cart_items': [dict(item) for item in cart_items],
+            'count': len(cart_items)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/checkout')
+@login_required
+def checkout():
+    """Checkout page"""
+    try:
+        conn = get_db_connection()
+        cart_items_data = conn.execute('''
+            SELECT ci.*, p.name, p.price, p.image_url 
+            FROM cart_items ci 
+            JOIN products p ON ci.product_id = p.id 
+            WHERE ci.user_id = ?
+        ''', (current_user.id,)).fetchall()
+        conn.close()
+        
+        cart_items = []
+        total = 0
+        
+        for item in cart_items_data:
+            product = Product.get(item['product_id'])
+            if product:
+                cart_items.append({
+                    'id': item['id'],
+                    'product': product,
+                    'quantity': item['quantity'],
+                    'subtotal': product.price * item['quantity']
+                })
+                total += product.price * item['quantity']
+        
+        if not cart_items:
+            flash('Your cart is empty', 'error')
+            return redirect(url_for('cart'))
+        
+        return render_template('checkout.html', cart_items=cart_items, total=total)
+        if not cart_items: 
+            flash('Your cart is empty', 'error') 
+            return redirect(url_for('cart')) 
+        return render_template('checkout.html', cart_items=cart_items, total=total) 
+    except Exception as e: 
+        flash('Error loading checkout page', 'error') 
+        return redirect(url_for('cart')) 

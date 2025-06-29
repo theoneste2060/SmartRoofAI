@@ -20,7 +20,7 @@
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100" id="loginButton">Login</button>
+                        <button type="submit" class="btn btn-primary w-100 no-global-loader" id="loginButton">Login</button>
                     </form>
                     
                     <hr>
@@ -42,24 +42,23 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Login page loaded');
     const loginForm = document.getElementById('loginForm');
     const loginButton = document.getElementById('loginButton');
     
+    console.log('Login form found:', loginForm);
+    console.log('Login button found:', loginButton);
+    
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
-            // Show loading state
-            const originalText = loginButton.innerHTML;
-            loginButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Logging in...';
-            loginButton.disabled = true;
+            console.log('Login form submitted');
             
-            // Allow form to submit normally, but ensure button doesn't stay disabled if there's an error
-            setTimeout(() => {
-                if (loginButton.disabled) {
-                    loginButton.innerHTML = originalText;
-                    loginButton.disabled = false;
-                }
-            }, 5000);
+            // Remove loading state - just let the form submit normally
+            // No spinner, no disabled button, no processing text
+            
         });
+    } else {
+        console.error('Login form not found!');
     }
 });
 </script>

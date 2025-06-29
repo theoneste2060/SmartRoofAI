@@ -25,16 +25,21 @@ class User(UserMixin):
     
     @staticmethod
     def get_by_email(email):
+        print(f"DEBUG: Looking up user by email: {email}")
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
         conn.close()
         if user:
+            print(f"DEBUG: User found: {user['username']} (ID: {user['id']})")
             return User(user['id'], user['username'], user['email'], 
                        user['password_hash'], user['is_admin'], user['created_at'])
+        else:
+            print("DEBUG: No user found with this email")
         return None
     
     @staticmethod
     def create(username, email, password):
+        print(f"DEBUG: Creating new user: {username} ({email})")
         conn = get_db_connection()
         password_hash = generate_password_hash(password)
         cursor = conn.execute('''
@@ -44,10 +49,14 @@ class User(UserMixin):
         user_id = cursor.lastrowid
         conn.commit()
         conn.close()
+        print(f"DEBUG: User created with ID: {user_id}")
         return User.get(user_id)
     
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        print(f"DEBUG: Checking password for user: {self.username}")
+        result = check_password_hash(self.password_hash, password)
+        print(f"DEBUG: Password check result: {result}")
+        return result
 
 class Product:
     def __init__(self, id, name, description, price, category, image_url, stock=100, created_at=None):

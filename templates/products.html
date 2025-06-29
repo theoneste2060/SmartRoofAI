@@ -35,7 +35,7 @@
                             </select>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100 no-global-loader">
                             <i data-feather="search" class="me-2"></i>Filter
                         </button>
                     </form>
@@ -58,7 +58,7 @@
             <div class="row">
                 {% for product in products %}
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 product-card">
                         <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ product.name }}</h5>

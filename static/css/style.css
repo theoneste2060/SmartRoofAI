@@ -1,5 +1,55 @@
 /* Custom styles for SmartRoof */
 
+/* Navbar styling for better visibility */
+.navbar {
+    background-color: #343a40 !important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white !important;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+    color: white !important;
+}
+
+.navbar-nav .nav-link.active {
+    color: white !important;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.dropdown-menu {
+    background-color: #343a40;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white !important;
+}
+
+.dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 .hero-section {
     background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
     color: white;
@@ -50,9 +100,133 @@
     transform: translateY(-5px);
 }
 
-/* Calculator section */
+/* Featured Products - Equal size cards with consistent image cropping */
+.featured-products .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.featured-products .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.featured-products .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.featured-products .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.featured-products .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.featured-products .card-text {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #6c757d;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+.featured-products .card-footer {
+    background: none;
+    border-top: none;
+    padding-top: 0;
+}
+
+/* Product cards in general */
+.product-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.product-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.product-card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Similar Products - Smaller cards for 4-column layout */
+.similar-products .product-card .card-img-top {
+    height: 160px;
+}
+
+.similar-products .product-card .card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.similar-products .product-card .card-body {
+    padding: 0.75rem;
+}
+
+.similar-products .product-card .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Similar Products section styling */
+.similar-products {
+    margin-top: 1rem;
+}
+
+.similar-products h3 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Calculator section - fix background and text visibility */
 #calculator {
-    background: var(--bs-dark);
+    background: #f8f9fa;
+}
+
+#calculator .card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+#calculator .card-header {
+    background-color: #007bff;
+    color: white;
+    border-bottom: none;
 }
 
 #calculatorResults {
@@ -89,6 +263,43 @@
     .user-message {
         margin-left: 0;
         margin-right: 0;
+    }
+    
+    /* Product cards on mobile */
+    .featured-products .card-img-top,
+    .product-card .card-img-top {
+        height: 180px;
+    }
+    
+    .featured-products .card-title,
+    .product-card .card-title {
+        font-size: 1rem;
+    }
+    
+    .featured-products .card-text,
+    .product-card .card-text {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .featured-products .card-img-top,
+    .product-card .card-img-top {
+        height: 160px;
+    }
+    
+    /* Similar products on mobile */
+    .similar-products .product-card .card-img-top {
+        height: 140px;
+    }
+    
+    .similar-products .product-card .card-title {
+        font-size: 0.9rem;
+    }
+    
+    .similar-products .product-card .btn {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
     }
 }
 
@@ -135,12 +346,6 @@ footer a {
 
 footer a:hover {
     color: var(--bs-primary) !important;
-}
-
-/* Navbar brand */
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: 700;
 }
 
 /* Alert styling */

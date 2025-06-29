@@ -19,19 +19,20 @@
                         <div class="col-md-4">
                             <h5>{{ item.product.name }}</h5>
                             <p class="text-muted">{{ item.product.category }}</p>
-                            <p class="mb-0">${{ "%.2f"|format(item.product.price) }} each</p>
+                            <p class="mb-0">RWF {{ (item.product.price * 1000)|int }} each</p>
                         </div>
                         <div class="col-md-3">
-                            <form method="POST" action="{{ url_for('update_cart', product_id=item.product.id) }}">
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="quantity" 
-                                           value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}">
-                                    <button class="btn btn-outline-secondary" type="submit">Update</button>
-                                </div>
-                            </form>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="quantity" 
+                                       value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" disabled>
+                                <span class="input-group-text">Qty</span>
+                            </div>
                         </div>
                         <div class="col-md-3 text-end">
-                            <h5 class="text-primary">${{ "%.2f"|format(item.subtotal) }}</h5>
+                            <h5 class="text-primary">RWF {{ (item.subtotal * 1000)|int }}</h5>
+                            <form method="POST" action="{{ url_for('remove_from_cart', item_id=item.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -47,20 +48,20 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-3">
                         <span>Subtotal:</span>
-                        <span>${{ "%.2f"|format(total) }}</span>
+                        <span>RWF {{ (total * 1000)|int }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span>Shipping:</span>
-                        <span>{% if total >= 500 %}Free{% else %}$25.00{% endif %}</span>
+                        <span>{% if total >= 500 %}Free{% else %}RWF 25,000{% endif %}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span>Tax:</span>
-                        <span>${{ "%.2f"|format(total * 0.08) }}</span>
+                        <span>RWF {{ (total * 0.08 * 1000)|int }}</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-3">
                         <strong>Total:</strong>
-                        <strong>${{ "%.2f"|format(total + (0 if total >= 500 else 25) + (total * 0.08)) }}</strong>
+                        <strong>RWF {{ ((total + (0 if total >= 500 else 25) + (total * 0.08)) * 1000)|int }}</strong>
                     </div>
                     <a href="{{ url_for('checkout') }}" class="btn btn-primary w-100">
                         Proceed to Checkout

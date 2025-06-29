@@ -117,15 +117,15 @@ class CustomerSegmentation:
 class RoofCalculator:
     def __init__(self):
         self.material_coverage = {
-            'Metal Sheets': 25,  # sq ft per sheet
-            'Shingles': 33,      # sq ft per bundle
-            'Tiles': 1,          # sq ft per tile
-            'Membrane': 100,     # sq ft per roll
-            'Polycarbonate': 20  # sq ft per sheet
+            'Metal Sheets': 2.32,  # m² per sheet (converted from 25 sq ft)
+            'Shingles': 3.07,      # m² per bundle (converted from 33 sq ft)
+            'Tiles': 0.093,        # m² per tile (converted from 1 sq ft)
+            'Membrane': 9.29,      # m² per roll (converted from 100 sq ft)
+            'Polycarbonate': 1.86  # m² per sheet (converted from 20 sq ft)
         }
     
     def calculate_materials(self, roof_length, roof_width, roof_type, material_type):
-        """Calculate required materials for roof"""
+        """Calculate required materials for roof (dimensions in meters)"""
         area = roof_length * roof_width
         
         # Add complexity factor based on roof type
@@ -142,7 +142,7 @@ class RoofCalculator:
         # Add 10% waste factor
         final_area = adjusted_area * 1.1
         
-        coverage = self.material_coverage.get(material_type, 25)
+        coverage = self.material_coverage.get(material_type, 2.32)
         units_needed = int(np.ceil(final_area / coverage))
         
         return {

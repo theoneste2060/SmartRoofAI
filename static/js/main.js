@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Loading state for buttons with timeout
-    const submitButtons = document.querySelectorAll('button[type="submit"]');
+    const submitButtons = document.querySelectorAll('button[type="submit"]:not(.no-global-loader)');
     submitButtons.forEach(button => {
         button.addEventListener('click', function() {
             const form = this.closest('form');

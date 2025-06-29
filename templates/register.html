@@ -24,7 +24,7 @@
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100" id="registerButton">Register</button>
+                        <button type="submit" class="btn btn-primary w-100 no-global-loader" id="registerButton">Register</button>
                     </form>
                     
                     <hr>
@@ -46,18 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
-            // Show loading state
-            const originalText = registerButton.innerHTML;
-            registerButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
-            registerButton.disabled = true;
-            
-            // Allow form to submit normally, but ensure button doesn't stay disabled if there's an error
-            setTimeout(() => {
-                if (registerButton.disabled) {
-                    registerButton.innerHTML = originalText;
-                    registerButton.disabled = false;
-                }
-            }, 5000);
+            // Remove loading state - just let the form submit normally
+            // No spinner, no disabled button, no processing text
         });
     }
 });

@@ -36,11 +36,11 @@
                         <form id="roofCalculatorForm">
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="roofLength" class="form-label">Roof Length (ft)</label>
+                                    <label for="roofLength" class="form-label">Roof Length (m)</label>
                                     <input type="number" class="form-control" id="roofLength" step="0.1" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="roofWidth" class="form-label">Roof Width (ft)</label>
+                                    <label for="roofWidth" class="form-label">Roof Width (m)</label>
                                     <input type="number" class="form-control" id="roofWidth" step="0.1" required>
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
                                 </div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary no-global-loader">
                                 <i data-feather="zap" class="me-2"></i>Calculate Materials
                             </button>
                         </form>
@@ -95,10 +95,10 @@
 <section class="py-5">
     <div class="container">
         <h2 class="text-center mb-5">Featured Products</h2>
-        <div class="row">
+        <div class="row featured-products">
             {% for product in products %}
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 product-card">
                     <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ product.name }}</h5>

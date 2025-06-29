@@ -7,9 +7,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Product Management</h2>
         <div>
-            <button class="btn btn-primary" disabled>
+            <a href="{{ url_for('admin_add_product') }}" class="btn btn-primary">
                 <i data-feather="plus"></i> Add Product
-            </button>
+            </a>
             <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
         </div>
     </div>
@@ -18,51 +18,117 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <thead>
+                    <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Actions</th>
+                            <th><i data-feather="hash" class="me-1"></i>ID</th>
+                            <th><i data-feather="image" class="me-1"></i>Image</th>
+                            <th><i data-feather="package" class="me-1"></i>Name</th>
+                            <th><i data-feather="tag" class="me-1"></i>Category</th>
+                            <th><i data-feather="dollar-sign" class="me-1"></i>Price</th>
+                            <th><i data-feather="box" class="me-1"></i>Stock</th>
+                            <th><i data-feather="settings" class="me-1"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for product in products.values() %}
-                        <tr>
-                            <td>{{ product.id }}</td>
-                            <td>
-                                <img src="{{ product.image_url }}" alt="{{ product.name }}" 
-                                     style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
-                            </td>
-                            <td>
-                                <strong>{{ product.name }}</strong>
-                                <br>
-                                <small class="text-muted">{{ product.description[:50] }}...</small>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">{{ product.category }}</span>
-                            </td>
-                            <td>${{ "%.2f"|format(product.price) }}</td>
-                            <td>
-                                <span class="badge bg-{% if product.stock > 50 %}success{% elif product.stock > 10 %}warning{% else %}danger{% endif %}">
-                                    {{ product.stock }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary">View</a>
-                                    <button class="btn btn-outline-secondary" disabled>Edit</button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                        {% if products %}
+                            {% for product in products.values() %}
+                            <tr>
+                                <td>{{ product.id }}</td>
+                                <td>
+                                    <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                                         style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
+                                </td>
+                                <td>
+                                    <strong>{{ product.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ product.description[:50] }}...</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ product.category }}</span>
+                                </td>
+                                <td>RWF {{ (product.price * 1000)|int }}</td>
+                                <td>
+                                    <span class="badge bg-{% if product.stock > 50 %}success{% elif product.stock > 10 %}warning{% else %}danger{% endif %}">
+                                        {{ product.stock }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary" target="_blank">View</a>
+                                        <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="btn btn-outline-warning">
+                                            <i data-feather="edit" class="me-1"></i>Edit
+                                        </a>
+                                        <button class="btn btn-outline-danger" onclick="deleteProduct({{ product.id }}, '{{ product.name }}')">
+                                            <i data-feather="trash-2" class="me-1"></i>Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i data-feather="package" style="width: 48px; height: 48px; opacity: 0.5;"></i>
+                                        <p class="mt-2 mb-0">No products found</p>
+                                        <small>Add your first product to get started</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="productName"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger no-global-loader">Delete Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteProduct(productId, productName) {
+    // Set the product name in the modal
+    document.getElementById('productName').textContent = productName;
+    
+    // Set the form action
+    document.getElementById('deleteForm').action = `/admin/products/delete/${productId}`;
+    
+    // Show the modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Add confirmation for delete form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteForm = document.getElementById('deleteForm');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            // The form will submit normally, but we can add additional validation here if needed
+            console.log('Deleting product...');
+        });
+    }
+});
+</script>
 {% endblock %}

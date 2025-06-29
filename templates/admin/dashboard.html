@@ -6,11 +6,16 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Admin Dashboard</h2>
-        <div class="btn-group">
-            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary">Users</a>
-            <a href="{{ url_for('admin_products') }}" class="btn btn-outline-primary">Products</a>
-            <a href="{{ url_for('admin_orders') }}" class="btn btn-outline-primary">Orders</a>
-            <a href="{{ url_for('admin_reports') }}" class="btn btn-outline-primary">Reports</a>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary">Users</a>
+                <a href="{{ url_for('admin_products') }}" class="btn btn-outline-primary">Products</a>
+                <a href="{{ url_for('admin_orders') }}" class="btn btn-outline-primary">Orders</a>
+                <a href="{{ url_for('admin_reports') }}" class="btn btn-outline-primary">Reports</a>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                <i data-feather="log-out" class="me-2"></i>Logout
+            </a>
         </div>
     </div>
     
