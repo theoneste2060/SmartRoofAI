@@ -52,7 +52,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <i data-feather="dollar-sign" style="width: 48px; height: 48px;" class="text-info mb-2"></i>
-                    <h3>RWF {{ "{:,.0f}"|format(total_revenue) }}</h3>
+                    <h3>RWF {{ "{:,.0f}".format(total_revenue or 0) }}</h3>
                     <p class="text-muted mb-0">Revenue</p>
                 </div>
             </div>
@@ -127,7 +127,8 @@
 <script>
 // Customer Segments Chart
 const segmentCounts = {};
-{% for user_id, segment in segments.items() %}
+{% for user_id in segments %}
+{% set segment = segments[user_id] %}
 segmentCounts['{{ segment }}'] = (segmentCounts['{{ segment }}'] || 0) + 1;
 {% endfor %}
 

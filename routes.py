@@ -341,7 +341,7 @@ def admin_dashboard():
     conn.close()
     
     # Convert revenue to RWF (multiply by 1000)
-    total_revenue_rwf = total_revenue * 1000
+    total_revenue_rwf = (total_revenue or 0) * 1000
     
     recent_orders = []
     for order in recent_orders_data:
