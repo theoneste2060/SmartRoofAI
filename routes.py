@@ -509,12 +509,12 @@ def admin_orders():
         users = conn.execute('SELECT id, username, email FROM users').fetchall()
         conn.close()
         
-        # Convert to dictionaries for easier template usage
-        orders_dict = {}
+        # Convert to list of dictionaries for template usage
+        orders_list = []
         users_dict = {}
         
         for order in orders:
-            orders_dict[order['id']] = {
+            orders_list.append({
                 'id': order['id'],
                 'user_id': order['user_id'],
                 'username': order['username'] or 'Unknown User',
@@ -522,10 +522,10 @@ def admin_orders():
                 'items': order['items'],
                 'total': order['total'] * 1000,  # Convert to RWF
                 'status': order['status'],
-                'shipping_address': order['shipping_address'] if 'shipping_address' in order.keys() else '',
-                'payment_method': order['payment_method'] if 'payment_method' in order.keys() else 'Unknown',
+                'shipping_address': '',  # Column doesn't exist in current schema
+                'payment_method': 'Unknown',  # Column doesn't exist in current schema
                 'created_at': order['created_at']
-            }
+            })
         
         for user in users:
             users_dict[user['id']] = {
@@ -533,7 +533,7 @@ def admin_orders():
                 'email': user['email']
             }
         
-        return render_template('admin/orders.html', orders=orders_dict, users=users_dict)
+        return render_template('admin/orders.html', orders=orders_list, users=users_dict)
         
     except Exception as e:
         print(f"Error fetching orders: {e}")

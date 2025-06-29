@@ -36,7 +36,7 @@
                                     Items
                                 </button>
                             </td>
-                            <td>RWF {{ "{:,.0f}"|format(order.total) }}</td>
+                            <td>RWF {{ "{:,.0f}".format(order.total or 0) }}</td>
                             <td>
                                 <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'shipped' %}info{% else %}secondary{% endif %}">
                                     {{ order.status.title() }}
