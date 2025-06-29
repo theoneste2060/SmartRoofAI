@@ -52,25 +52,57 @@
                         <h5 class="mb-0">Payment Information</h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <i data-feather="info" class="me-2"></i>
-                            This is a demo checkout. No actual payment will be processed.
-                        </div>
-                        <div class="mb-3">
-                            <label for="cardNumber" class="form-label">Card Number</label>
-                            <input type="text" class="form-control" id="cardNumber" name="cardNumber" 
-                                   placeholder="1234 5678 9012 3456" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="expiryDate" class="form-label">Expiry Date</label>
-                                <input type="text" class="form-control" id="expiryDate" name="expiryDate" 
-                                       placeholder="MM/YY" required>
+                        <div class="mb-4">
+                            <h6>Choose Payment Method</h6>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment_method" id="mtn_payment" value="mtn_mobile_money" checked>
+                                <label class="form-check-label" for="mtn_payment">
+                                    <strong>MTN Mobile Money</strong> - Pay with your MTN Mobile Money account
+                                </label>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="cvv" class="form-label">CVV</label>
-                                <input type="text" class="form-control" id="cvv" name="cvv" 
-                                       placeholder="123" required>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment_method" id="card_payment" value="credit_card">
+                                <label class="form-check-label" for="card_payment">
+                                    <strong>Credit/Debit Card</strong> - Pay with your card
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- MTN Mobile Money Section -->
+                        <div id="mtn_section" class="payment-section">
+                            <div class="alert alert-info">
+                                <i data-feather="smartphone" class="me-2"></i>
+                                You will be redirected to MTN Mobile Money to complete your payment.
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">MTN Mobile Money Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       placeholder="07XXXXXXXX" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Credit Card Section -->
+                        <div id="card_section" class="payment-section" style="display: none;">
+                            <div class="alert alert-info">
+                                <i data-feather="info" class="me-2"></i>
+                                This is a demo checkout. No actual payment will be processed.
+                            </div>
+                            <div class="mb-3">
+                                <label for="cardNumber" class="form-label">Card Number</label>
+                                <input type="text" class="form-control" id="cardNumber" name="cardNumber" 
+                                       placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="expiryDate" class="form-label">Expiry Date</label>
+                                    <input type="text" class="form-control" id="expiryDate" name="expiryDate" 
+                                           placeholder="MM/YY">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cvv" class="form-label">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" name="cvv" 
+                                           placeholder="123">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -117,4 +149,35 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mtnRadio = document.getElementById('mtn_payment');
+    const cardRadio = document.getElementById('card_payment');
+    const mtnSection = document.getElementById('mtn_section');
+    const cardSection = document.getElementById('card_section');
+    const phoneInput = document.getElementById('phone');
+    const cardInputs = document.querySelectorAll('#card_section input');
+    
+    function togglePaymentSections() {
+        if (mtnRadio.checked) {
+            mtnSection.style.display = 'block';
+            cardSection.style.display = 'none';
+            phoneInput.required = true;
+            cardInputs.forEach(input => input.required = false);
+        } else {
+            mtnSection.style.display = 'none';
+            cardSection.style.display = 'block';
+            phoneInput.required = false;
+            cardInputs.forEach(input => input.required = true);
+        }
+    }
+    
+    mtnRadio.addEventListener('change', togglePaymentSections);
+    cardRadio.addEventListener('change', togglePaymentSections);
+    
+    // Initialize
+    togglePaymentSections();
+});
+</script>
 {% endblock %}

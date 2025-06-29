@@ -175,12 +175,15 @@ function debounce(func, wait) {
     };
 }
 
-// Add to cart animation
+// Add to cart animation and update cart count
 function addToCartAnimation(button) {
     const originalText = button.innerHTML;
     button.innerHTML = '<i data-feather="check"></i> Added!';
     button.classList.add('btn-success');
     button.disabled = true;
+    
+    // Update cart count
+    updateCartCount();
     
     setTimeout(() => {
         button.innerHTML = originalText;
@@ -191,6 +194,29 @@ function addToCartAnimation(button) {
         }
     }, 2000);
 }
+
+// Update cart count
+function updateCartCount() {
+    fetch('/api/cart/count')
+        .then(response => response.json())
+        .then(data => {
+            const cartBadge = document.querySelector('.cart-count');
+            if (cartBadge) {
+                if (data.count > 0) {
+                    cartBadge.textContent = data.count;
+                    cartBadge.style.display = 'inline';
+                } else {
+                    cartBadge.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => console.error('Error updating cart count:', error));
+}
+
+// Initialize cart count when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+});
 
 // Export functions for use in other files
 window.SmartRoof = {

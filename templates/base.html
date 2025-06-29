@@ -45,8 +45,11 @@
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('cart') }}">
+                            <a class="nav-link position-relative" href="{{ url_for('cart') }}">
                                 <i data-feather="shopping-cart"></i> Cart
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count" style="display: none;">
+                                    0
+                                </span>
                             </a>
                         </li>
                         <li class="nav-item dropdown">

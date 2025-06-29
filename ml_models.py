@@ -70,11 +70,14 @@ class CustomerSegmentation:
         }
     
     def segment_customers(self, orders):
-        """Segment customers based on purchase behavior"""
+        """Enhanced customer segmentation based on RFM analysis and purchase behavior"""
         if not orders:
             return {}
         
-        # Create customer features
+        import datetime
+        current_date = datetime.datetime.now()
+        
+        # Create customer features with RFM analysis
         customer_data = {}
         for order in orders.values():
             user_id = order.user_id
@@ -82,35 +85,65 @@ class CustomerSegmentation:
                 customer_data[user_id] = {
                     'total_spent': 0,
                     'num_orders': 0,
-                    'avg_order_value': 0
+                    'avg_order_value': 0,
+                    'last_order_date': None,
+                    'recency_days': 0
                 }
             
             customer_data[user_id]['total_spent'] += order.total
             customer_data[user_id]['num_orders'] += 1
+            
+            # Parse order date for recency calculation
+            try:
+                if hasattr(order, 'created_at'):
+                    if isinstance(order.created_at, str):
+                        order_date = datetime.datetime.fromisoformat(order.created_at.replace('Z', '+00:00'))
+                    else:
+                        order_date = order.created_at
+                    
+                    if customer_data[user_id]['last_order_date'] is None or order_date > customer_data[user_id]['last_order_date']:
+                        customer_data[user_id]['last_order_date'] = order_date
+            except:
+                # Default to current date if parsing fails
+                customer_data[user_id]['last_order_date'] = current_date
         
-        # Calculate average order value
+        # Calculate derived metrics
         for user_id in customer_data:
             data = customer_data[user_id]
             data['avg_order_value'] = data['total_spent'] / data['num_orders']
+            
+            # Calculate recency (days since last order)
+            if data['last_order_date']:
+                data['recency_days'] = (current_date - data['last_order_date']).days
+            else:
+                data['recency_days'] = 365  # Default for unknown dates
         
         if len(customer_data) < 3:
-            return {uid: "Standard Customer" for uid in customer_data.keys()}
+            return {uid: "New Customer" for uid in customer_data.keys()}
         
-        # Prepare features for clustering
-        features = []
-        user_ids = []
-        for user_id, data in customer_data.items():
-            features.append([data['total_spent'], data['num_orders'], data['avg_order_value']])
-            user_ids.append(user_id)
-        
-        # Perform clustering
-        features = np.array(features)
-        clusters = self.kmeans.fit_predict(features)
-        
-        # Map users to segments
+        # Enhanced segmentation logic based on multiple criteria
         user_segments = {}
-        for i, user_id in enumerate(user_ids):
-            user_segments[user_id] = self.segments[clusters[i]]
+        for user_id, data in customer_data.items():
+            total_spent = data['total_spent']
+            num_orders = data['num_orders']
+            recency = data['recency_days']
+            avg_order = data['avg_order_value']
+            
+            # Advanced segmentation rules
+            if total_spent >= 500 and num_orders >= 5 and recency <= 30:
+                segment = "VIP Customer"
+            elif total_spent >= 200 and num_orders >= 3 and recency <= 60:
+                segment = "Loyal Customer"
+            elif total_spent >= 100 and recency <= 90:
+                segment = "Regular Customer"
+            elif recency > 180:
+                segment = "At Risk"
+            elif num_orders == 1 and recency <= 30:
+                segment = "New Customer"
+            else:
+                segment = "Standard Customer"
+            
+            user_segments[user_id] = segment
         
         return user_segments
 

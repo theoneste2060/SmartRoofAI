@@ -562,10 +562,142 @@ def checkout():
             return redirect(url_for('cart'))
         
         return render_template('checkout.html', cart_items=cart_items, total=total)
-        if not cart_items: 
-            flash('Your cart is empty', 'error') 
-            return redirect(url_for('cart')) 
-        return render_template('checkout.html', cart_items=cart_items, total=total) 
     except Exception as e: 
-        flash('Error loading checkout page', 'error') 
+        flash('Error loading checkout page', 'error')
+        return redirect(url_for('cart'))
+
+@app.route('/api/cart/count')
+@login_required
+def cart_count():
+    """API endpoint to get cart count"""
+    try:
+        conn = get_db_connection()
+        result = conn.execute('''
+            SELECT SUM(quantity) as total_items 
+            FROM cart_items 
+            WHERE user_id = ?
+        ''', (current_user.id,)).fetchone()
+        conn.close()
+        
+        total_items = result['total_items'] if result['total_items'] else 0
+        return {'count': total_items}
+    except Exception as e:
+        return {'count': 0}
+
+@app.route('/place_order', methods=['POST'])
+@login_required
+def place_order():
+    """Process order and handle MTN Mobile Money payment"""
+    try:
+        conn = get_db_connection()
+        cart_items_data = conn.execute('''
+            SELECT ci.*, p.name, p.price 
+            FROM cart_items ci 
+            JOIN products p ON ci.product_id = p.id 
+            WHERE ci.user_id = ?
+        ''', (current_user.id,)).fetchall()
+        
+        if not cart_items_data:
+            flash('Your cart is empty!', 'error')
+            return redirect(url_for('cart'))
+        
+        # Get form data
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
+        address = request.form.get('address')
+        city = request.form.get('city')
+        phone = request.form.get('phone')
+        payment_method = request.form.get('payment_method')
+        
+        # Calculate total and prepare items
+        cart_items = []
+        total = 0
+        for item in cart_items_data:
+            cart_items.append({
+                'product_id': item['product_id'],
+                'product_name': item['name'],
+                'quantity': item['quantity'],
+                'price': item['price'],
+                'subtotal': item['price'] * item['quantity']
+            })
+            total += item['price'] * item['quantity']
+        
+        if payment_method == 'mtn_mobile_money':
+            # Store order data in session for MTN payment processing
+            import json
+            from flask import session
+            session['pending_order'] = {
+                'user_id': current_user.id,
+                'items': cart_items,
+                'total': total,
+                'shipping_info': {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'address': address,
+                    'city': city,
+                    'phone': phone
+                },
+                'payment_method': payment_method
+            }
+            return render_template('payment/mtn_payment.html', total=total, phone=phone)
+        else:
+            # For other payment methods, complete order immediately
+            import json
+            order_items = json.dumps(cart_items)
+            conn.execute('''
+                INSERT INTO orders (user_id, items, total, status)
+                VALUES (?, ?, ?, ?)
+            ''', (current_user.id, order_items, total, 'completed'))
+            
+            # Clear cart
+            conn.execute('DELETE FROM cart_items WHERE user_id = ?', (current_user.id,))
+            conn.commit()
+            conn.close()
+            
+            flash('Order placed successfully!', 'success')
+            return redirect(url_for('profile'))
+            
+    except Exception as e:
+        flash(f'Error processing order: {str(e)}', 'error')
+        return redirect(url_for('checkout'))
+
+@app.route('/process_mtn_payment', methods=['POST'])
+@login_required 
+def process_mtn_payment():
+    """Simulate MTN Mobile Money payment processing"""
+    try:
+        from flask import session
+        pending_order = session.get('pending_order')
+        
+        if not pending_order:
+            flash('No pending order found', 'error')
+            return redirect(url_for('checkout'))
+        
+        # Simulate payment processing delay
+        import time
+        time.sleep(1)
+        
+        # Create the order
+        import json
+        order_items = json.dumps(pending_order['items'])
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO orders (user_id, items, total, status)
+            VALUES (?, ?, ?, ?)
+        ''', (pending_order['user_id'], order_items, pending_order['total'], 'completed'))
+        
+        # Clear cart
+        conn.execute('DELETE FROM cart_items WHERE user_id = ?', (current_user.id,))
+        conn.commit()
+        conn.close()
+        
+        # Clear session
+        session.pop('pending_order', None)
+        
+        flash('MTN Mobile Money payment successful! Your order has been placed.', 'success')
+        return redirect(url_for('profile'))
+        
+    except Exception as e:
+        flash(f'Payment failed: {str(e)}', 'error')
+        return redirect(url_for('checkout')) 
         return redirect(url_for('cart')) 
