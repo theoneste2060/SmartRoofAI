@@ -80,12 +80,20 @@ def init_database():
     conn.commit()
     
     # Insert default admin user if not exists
-    cursor.execute('SELECT COUNT(*) FROM users WHERE email = ?', ('admin@smartroof.com',))
+    cursor.execute('SELECT COUNT(*) FROM users WHERE username = ?', ('admin',))
     if cursor.fetchone()[0] == 0:
         cursor.execute('''
             INSERT INTO users (username, email, password_hash, is_admin)
             VALUES (?, ?, ?, ?)
         ''', ('admin', 'admin@smartroof.com', generate_password_hash('admin123'), True))
+    
+    # Insert regular user if not exists
+    cursor.execute('SELECT COUNT(*) FROM users WHERE username = ?', ('user',))
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''
+            INSERT INTO users (username, email, password_hash, is_admin)
+            VALUES (?, ?, ?, ?)
+        ''', ('user', 'user@smartroof.com', generate_password_hash('user123'), False))
     
     # Insert sample products if not exists
     cursor.execute('SELECT COUNT(*) FROM products')

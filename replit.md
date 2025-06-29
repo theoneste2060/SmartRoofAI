@@ -104,6 +104,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 29, 2025**: Successfully migrated from Replit Agent to standard Replit environment
+  - Configured SESSION_SECRET environment variable for secure session management
+  - Added ProxyFix middleware for proper HTTPS URL generation in Replit environment
+  - Updated main.py for Replit deployment compatibility (removed development server code)
+  - Added users: admin (admin/admin123) and user (user/user123) as requested
+  - Ensured all security best practices are followed for production deployment
+
 - **June 28, 2025**: Fixed all form processing issues
   - Updated roof calculator JavaScript to prevent buttons getting stuck in processing state
   - Added proper loading states and immediate button restoration for login/register forms  
