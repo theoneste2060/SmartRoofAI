@@ -216,6 +216,8 @@ def remove_from_cart(item_id):
     
     return redirect(url_for('cart'))
 
+
+
 @app.route('/update_cart_quantity/<int:item_id>', methods=['POST'])
 @login_required
 def update_cart_quantity(item_id):
