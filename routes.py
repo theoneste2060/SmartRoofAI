@@ -522,8 +522,8 @@ def admin_orders():
                 'items': order['items'],
                 'total': order['total'] * 1000,  # Convert to RWF
                 'status': order['status'],
-                'shipping_address': order.get('shipping_address', ''),
-                'payment_method': order.get('payment_method', 'Unknown'),
+                'shipping_address': order['shipping_address'] if 'shipping_address' in order.keys() else '',
+                'payment_method': order['payment_method'] if 'payment_method' in order.keys() else 'Unknown',
                 'created_at': order['created_at']
             }
         
