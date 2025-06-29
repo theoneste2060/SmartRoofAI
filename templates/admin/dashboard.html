@@ -90,7 +90,7 @@
                                             {{ order.status.title() }}
                                         </span>
                                     </td>
-                                    <td>RWF {{ "{:,.0f}"|format(order.total) }}</td>
+                                    <td>RWF {{ "{:,.0f}".format(order.total or 0) }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

@@ -37,7 +37,7 @@
                                     </p>
                                 </div>
                                 <div class="col-md-4 text-end">
-                                    <h6 class="text-primary">${{ "%.2f"|format(order.total) }}</h6>
+                                    <h6 class="text-primary">${{ "%.2f".format(order.total or 0) }}</h6>
                                     <small class="text-muted">{{ order.items|length }} items</small>
                                 </div>
                             </div>
@@ -47,7 +47,7 @@
                                 {% for item in order.items %}
                                 <div class="d-flex justify-content-between">
                                     <span>{{ item.product_name }} ({{ item.quantity }})</span>
-                                    <span>${{ "%.2f"|format(item.subtotal) }}</span>
+                                    <span>${{ "%.2f".format(item.subtotal or 0) }}</span>
                                 </div>
                                 {% endfor %}
                             </div>
