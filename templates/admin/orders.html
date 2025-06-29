@@ -30,7 +30,7 @@
                         <tr>
                             <td>#{{ order.id }}</td>
                             <td>{{ users[order.user_id].username if order.user_id in users else 'Unknown' }}</td>
-                            <td>{{ order.created_at.strftime('%m/%d/%Y %I:%M %p') }}</td>
+                            <td>{{ order.created_at }}</td>
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">

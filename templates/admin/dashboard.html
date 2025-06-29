@@ -84,7 +84,7 @@
                                 <tr>
                                     <td>#{{ order.id }}</td>
                                     <td>{{ users[order.user_id].username if order.user_id in users else 'Unknown' }}</td>
-                                    <td>{{ order.created_at.strftime('%m/%d/%Y') }}</td>
+                                    <td>{{ order.created_at }}</td>
                                     <td>
                                         <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% else %}secondary{% endif %}">
                                             {{ order.status.title() }}
